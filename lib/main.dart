@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flowpos_app/animation/splash.dart';
 
 void main() {
   runApp(const MyApp());
@@ -6,11 +7,16 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FlowPos',
       debugShowCheckedModeBanner: false,
+      title: 'FlowPOS',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const SplashPage(), // Pastikan SplashPage valid
     );
   }
 }
