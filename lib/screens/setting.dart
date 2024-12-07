@@ -1,16 +1,17 @@
 import 'package:flowpos_app/screens/home.dart';
+import 'package:flowpos_app/screens/login.dart';
 import 'package:flowpos_app/screens/registrasi.dart';
 import 'package:flutter/material.dart';
 import 'package:flowpos_app/colors/colors.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SettingPage extends StatefulWidget {
+  const SettingPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _SettingPageState createState() => _SettingPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SettingPageState extends State<SettingPage> {
   bool _obscureText = true;
   bool _storeNameHasText = false;
   bool _usernameHasText = false;
@@ -38,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Login',
+                'Setting',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 25,
@@ -124,12 +125,12 @@ class _LoginPageState extends State<LoginPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 159, vertical: 15),
+                      const EdgeInsets.symmetric(horizontal: 140, vertical: 15),
                   textStyle: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 child: const Text(
-                  'Login',
+                  'Simpan',
                   style: TextStyle(
                       color: Colors.white, fontSize: 16, fontFamily: 'Poppins'),
                 ),
@@ -150,17 +151,17 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const RegistrasiPage()));
+                          builder: (context) => const LoginPage()));
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
+                  backgroundColor: Color(0xffFF0000),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 140, vertical: 15),
                   textStyle: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 child: const Text(
-                  'Registrasi',
+                  'Log Out',
                   style: TextStyle(
                       color: Colors.white, fontSize: 16, fontFamily: 'Poppins'),
                 ),

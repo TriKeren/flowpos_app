@@ -1,23 +1,47 @@
 import 'package:flowpos_app/screens/product.dart';
 import 'package:flowpos_app/widget/bottombar.dart';
 import 'package:flutter/material.dart';
-import 'package:flowpos_app/colors/colors.dart'; 
+import 'package:flowpos_app/colors/colors.dart';
 import 'package:image_picker/image_picker.dart';
 
-class AddProduct extends StatefulWidget {
-  const AddProduct({super.key});
+class EditProduct extends StatefulWidget {
+  final String initialName;
+  final String initialPrice;
+  final String initialDescription;
+  final String initialCategory;
+  final XFile? initialImage;
+
+  const EditProduct({
+    super.key,
+    required this.initialName,
+    required this.initialPrice,
+    required this.initialDescription,
+    required this.initialCategory,
+    this.initialImage,
+  });
 
   @override
-  State<AddProduct> createState() => _AddProductState();
+  State<EditProduct> createState() => _EditProductState();
 }
 
-class _AddProductState extends State<AddProduct> {
+class _EditProductState extends State<EditProduct> {
   String? selectedCategory;
   final List<String> categories = ['Makanan', 'Minuman', 'Dessert'];
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController priceController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+  late TextEditingController nameController;
+  late TextEditingController priceController;
+  late TextEditingController descriptionController;
   XFile? imageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCategory = widget.initialCategory;
+    nameController = TextEditingController(text: widget.initialName);
+    priceController = TextEditingController(text: widget.initialPrice);
+    descriptionController =
+        TextEditingController(text: widget.initialDescription);
+    imageFile = widget.initialImage;
+  }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -36,7 +60,7 @@ class _AddProductState extends State<AddProduct> {
         automaticallyImplyLeading: false,
         titleSpacing: 16,
         title: const Text(
-          'TAMBAH PRODUK',
+          'EDIT PRODUK',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 20,
@@ -113,7 +137,8 @@ class _AddProductState extends State<AddProduct> {
                   color: Colors.black,
                 ),
                 items: categories.map((category) {
-                  return DropdownMenuItem<String>(value: category, child: Text(category));
+                  return DropdownMenuItem<String>(
+                      value: category, child: Text(category));
                 }).toList(),
                 onChanged: (value) {
                   setState(() {
@@ -136,10 +161,7 @@ class _AddProductState extends State<AddProduct> {
               controller: nameController,
               decoration: InputDecoration(
                 hintText: 'Masukkan Nama Produk',
-                hintStyle: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey
-                ),
+                hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -162,10 +184,7 @@ class _AddProductState extends State<AddProduct> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 hintText: 'Masukkan Harga Jual',
-                hintStyle: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey
-                ),
+                hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -188,10 +207,7 @@ class _AddProductState extends State<AddProduct> {
               maxLines: 4,
               decoration: InputDecoration(
                 hintText: 'Masukkan Deskripsi Produk',
-                hintStyle: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey
-                ),
+                hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -239,27 +255,70 @@ class _AddProductState extends State<AddProduct> {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 155),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    border: Border.all(
+                        color: Colors.red,
+                        width: 1),
+                    borderRadius:
+                        BorderRadius.circular(8), 
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Hapus Produk'),
+                            content: const Text(
+                                'Apakah Anda yakin ingin menghapus produk ini?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Batal'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Hapus'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.white),
                   ),
                 ),
-                child: const Text(
-                  'Simpan',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                    color: Colors.white,
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 126),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Update',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),
