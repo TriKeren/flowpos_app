@@ -18,6 +18,7 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'tePOS',
           style: TextStyle(
@@ -150,6 +151,7 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
                   style: TextStyle(
                     color: Colors.white,
                     fontFamily: 'Poppins',
+                    fontSize: 16
                   ),
                 ),
               ),
@@ -179,7 +181,7 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
                     vertical: 15,
                   ),
                   textStyle: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

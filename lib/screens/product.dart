@@ -1,5 +1,6 @@
 import 'package:flowpos_app/colors/colors.dart';
 import 'package:flowpos_app/screens/add_product.dart';
+import 'package:flowpos_app/screens/edit_product.dart';
 import 'package:flowpos_app/widget/refresh_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flowpos_app/widget/bottombar.dart';
@@ -17,17 +18,23 @@ class _ProductPageState extends State<ProductPage> {
   final List<Map<String, dynamic>> products = [
     {
       'name': 'Nasi Goreng',
-      'price': 15000,
+      'price': '15000',
+      'description': 'Nasi goreng spesial dengan telur dan ayam.',
+      'category': 'Makanan',
       'image': 'assets/images/nasigoreng.png',
     },
     {
       'name': 'Mie Goreng',
-      'price': 15000,
+      'price': '15000',
+      'description': 'Mie goreng pedas dengan sayuran segar.',
+      'category': 'Makanan',
       'image': 'assets/images/miegoreng.png',
     },
     {
       'name': 'Es Teh',
-      'price': 15000,
+      'price': '5000',
+      'description': 'Minuman segar es teh manis.',
+      'category': 'Minuman',
       'image': 'assets/images/esteh.png',
     },
   ];
@@ -40,7 +47,8 @@ class _ProductPageState extends State<ProductPage> {
         children: [
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -56,7 +64,10 @@ class _ProductPageState extends State<ProductPage> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AddProduct()));
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const AddProduct()));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
@@ -88,10 +99,11 @@ class _ProductPageState extends State<ProductPage> {
                           ),
                           child: DropdownButtonFormField<String>(
                             value: selectedCategory,
-                            isExpanded: true,  // Ensures the dropdown is as wide as the container
+                            isExpanded: true,
                             decoration: const InputDecoration(
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 8),  // Adjust the padding for better alignment
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 8),
                             ),
                             hint: const Text(
                               'Pilih Kategori',
@@ -124,7 +136,14 @@ class _ProductPageState extends State<ProductPage> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const RefreshIcon(),
+                      RefreshIcon(
+                        key: UniqueKey(),
+                        onRefresh: () {
+                          setState(() {
+                            selectedCategory = null;
+                          });
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -144,13 +163,15 @@ class _ProductPageState extends State<ProductPage> {
                               Container(
                                 height: 140,
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: AppColors.border, width: 0.8),
+                                  border: Border.all(
+                                      color: AppColors.border, width: 0.8),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(10),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(8),
@@ -164,8 +185,10 @@ class _ProductPageState extends State<ProductPage> {
                                       const SizedBox(width: 10),
                                       Expanded(
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               product['name'],
@@ -177,7 +200,7 @@ class _ProductPageState extends State<ProductPage> {
                                             ),
                                             const SizedBox(height: 5),
                                             Text(
-                                              'Rp ${product['price']}',
+                                              'Rp ${product['price'].toString()}',
                                               style: const TextStyle(
                                                 fontFamily: 'Poppins',
                                                 fontSize: 14,
@@ -195,7 +218,21 @@ class _ProductPageState extends State<ProductPage> {
                                 bottom: 10,
                                 right: 10,
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditProduct(
+                                          initialName: product['name'],
+                                          initialPrice: product['price'],
+                                          initialDescription:
+                                              product['description'],
+                                          initialCategory: product['category'],
+                                          initialImage: null,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.primary,
                                     shape: RoundedRectangleBorder(
@@ -223,7 +260,7 @@ class _ProductPageState extends State<ProductPage> {
             ),
           ),
           const Positioned(
-            bottom: 20,
+            bottom: 0,
             left: 15,
             right: 15,
             child: BottomBar(),

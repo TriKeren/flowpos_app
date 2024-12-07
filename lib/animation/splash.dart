@@ -18,7 +18,6 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
   void initState() {
     super.initState();
 
-    // Animasi Fade-In
     _controller = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
@@ -29,7 +28,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
     _controller.forward();
 
-    // Pindah ke login setelah animasi selesai
+
     Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
