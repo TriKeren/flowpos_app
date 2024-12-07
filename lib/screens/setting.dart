@@ -1,6 +1,5 @@
 import 'package:flowpos_app/screens/home.dart';
 import 'package:flowpos_app/screens/login.dart';
-import 'package:flowpos_app/screens/registrasi.dart';
 import 'package:flutter/material.dart';
 import 'package:flowpos_app/colors/colors.dart';
 
