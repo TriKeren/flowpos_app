@@ -1,3 +1,4 @@
+import 'package:flowpos_app/screens/otp.dart';
 import 'package:flutter/material.dart';
 import 'package:flowpos_app/animation/splash.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const SplashPage(),
+      home: OtpScreen(),
     );
   }
 }

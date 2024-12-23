@@ -1,6 +1,9 @@
+import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flowpos_app/colors/colors.dart';
 import 'package:flowpos_app/screens/login.dart';
-import 'package:flutter/material.dart';
+import 'package:flowpos_app/models/popup_register.dart';
 
 class RegistrasiPage extends StatefulWidget {
   const RegistrasiPage({super.key});
@@ -11,8 +14,86 @@ class RegistrasiPage extends StatefulWidget {
 
 class _RegistrasiPageState extends State<RegistrasiPage> {
   bool _obscureText = true;
-  bool _usernameHasText = false;
-  bool _passwordHasText = false;
+  bool _confirmObscureText = true;
+
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
+  String? errorMessage;
+
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+$");
+    return emailRegex.hasMatch(email);
+  }
+
+  Future<void> registerUser(BuildContext context) async {
+    String username = usernameController.text.trim();
+    String email = emailController.text.trim();
+    String password = passwordController.text;
+    String confirmPassword = confirmPasswordController.text;
+
+    if (username.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      RegistrationPopup.showError(context, "Semua field harus diisi!");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      RegistrationPopup.showError(context, "Format email tidak valid!");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      RegistrationPopup.showError(
+          context, "Password dan konfirmasi password tidak cocok!");
+      return;
+    }
+
+    final url = Uri.parse('https://tepos-five.vercel.app/api/admin/register');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Tambahkan 201 di sini
+        final responseBody = jsonDecode(response.body);
+
+        if (responseBody.containsKey('message')) {
+          RegistrationPopup.showSuccess(context, responseBody['message']);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        } else {
+          RegistrationPopup.showError(
+              context, "Registrasi berhasil tetapi tanpa pesan.");
+        }
+      } else {
+        RegistrationPopup.showError(
+            context, "Gagal mendaftar. Error dari server.");
+      }
+    } catch (e) {
+      print("Exception: $e");
+      RegistrationPopup.showError(
+          context, "Terjadi kesalahan, periksa koneksi internet.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +101,7 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
-          'tePOS',
+          'Posify',
           style: TextStyle(
             fontFamily: 'Poppins',
             color: AppColors.primary,
@@ -31,169 +112,139 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
         elevation: 0,
       ),
       backgroundColor: Colors.white,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Center(
-                child: Text(
-                  'Register',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 25,
-                    color: AppColors.secondary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-              TextField(
-                onChanged: (text) {
-                  setState(() {
-                    _usernameHasText = text.isNotEmpty;
-                  });
-                },
-                decoration: InputDecoration(
-                  labelText: 'Nama Pemilik Toko',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  labelStyle: TextStyle(
-                    color: _usernameHasText
-                        ? AppColors.primary
-                        : AppColors.secondary.withOpacity(0.5),
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                onChanged: (text) {
-                  setState(() {
-                    _usernameHasText = text.isNotEmpty;
-                  });
-                },
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  labelStyle: TextStyle(
-                    color: _usernameHasText
-                        ? AppColors.primary
-                        : AppColors.secondary.withOpacity(0.5),
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                obscureText: _obscureText,
-                onChanged: (text) {
-                  setState(() {
-                    _passwordHasText = text.isNotEmpty;
-                  });
-                },
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  labelStyle: TextStyle(
-                    color: _passwordHasText
-                        ? AppColors.primary
-                        : AppColors.secondary.withOpacity(0.5),
-                    fontFamily: 'Poppins',
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureText ? Icons.visibility : Icons.visibility_off,
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Center(
+                  child: Text(
+                    'Register',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 25,
+                      color: AppColors.secondary,
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Storename',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  labelStyle: TextStyle(
-                    color: AppColors.secondary.withOpacity(0.5),
-                    fontFamily: 'Poppins',
+                const SizedBox(height: 40),
+                TextField(
+                  controller: usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 140,
-                    vertical: 15,
-                  ),
-                  textStyle: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(height: 16),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Register',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Poppins',
-                    fontSize: 16
+                const SizedBox(height: 16),
+                TextField(
+                  controller: passwordController,
+                  obscureText: _obscureText,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Center(
-                child: Text(
-                  'Sudah punya akun ???',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                    color: AppColors.secondary,
+                const SizedBox(height: 16),
+                TextField(
+                  controller: confirmPasswordController,
+                  obscureText: _confirmObscureText,
+                  decoration: InputDecoration(
+                    labelText: 'Konfirmasi Password',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _confirmObscureText
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _confirmObscureText = !_confirmObscureText;
+                        });
+                      },
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 150,
-                    vertical: 15,
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: () => registerUser(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 140, vertical: 15),
                   ),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  child: const Text(
+                    'Register',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Login',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Poppins',
+                const SizedBox(height: 16),
+                const Center(
+                  child: Text(
+                    'Sudah punya akun ???',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      color: AppColors.secondary,
+                    ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.secondary,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 150, vertical: 15),
+                  ),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Poppins',
+                        fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -28,7 +28,6 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
     _controller.forward();
 
-
     Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
@@ -53,19 +52,11 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
           child: Container(
             width: 150,
             height: 150,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primary,
-            ),
-            child: const Center(
-              child: Text(
-                'tePOS',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontFamily: 'Poppins'
-                ),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/Logo.png'),
+                fit: BoxFit.cover, 
               ),
             ),
           ),
