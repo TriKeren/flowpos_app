@@ -1,26 +1,10 @@
+import 'package:flowpos_app/screens/history.dart';
+import 'package:flowpos_app/screens/kasir_menu.dart';
 import 'package:flowpos_app/screens/product.dart';
+import 'package:flowpos_app/screens/setting.dart';
 import 'package:flutter/material.dart';
 import 'package:flowpos_app/colors/colors.dart';
 import 'package:flowpos_app/widget/bottombar.dart';
-
-class CardPage extends StatelessWidget {
-  final String cardTitle;
-
-  const CardPage({super.key, required this.cardTitle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(cardTitle)),
-      body: Center(
-        child: Text(
-          'Ini adalah halaman untuk $cardTitle',
-          style: const TextStyle(fontSize: 24),
-        ),
-      ),
-    );
-  }
-}
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -92,18 +76,15 @@ class HomePage extends StatelessWidget {
                                 builder: (context) {
                                   switch (index) {
                                     case 0:
-                                      return const CardPage(
-                                          cardTitle: 'History');
+                                      return const HistoryPage();
                                     case 1:
                                       return const ProductPage();
                                     case 2:
-                                      return const CardPage(cardTitle: 'Kasir');
+                                      return KasirMenuPage();
                                     case 3:
-                                      return const CardPage(
-                                          cardTitle: 'Setting');
+                                      return const SettingPage();
                                     default:
-                                      return const CardPage(
-                                          cardTitle: 'Unknown');
+                                      return const HomePage();
                                   }
                                 },
                               ),
@@ -159,7 +140,7 @@ class HomePage extends StatelessWidget {
             ),
           ),
           const Positioned(
-            bottom: 20,
+            bottom: 0,
             left: 15,
             right: 15,
             child: BottomBar(),

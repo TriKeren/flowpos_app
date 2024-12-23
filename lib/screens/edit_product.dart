@@ -3,22 +3,45 @@ import 'package:flowpos_app/widget/bottombar.dart';
 import 'package:flutter/material.dart';
 import 'package:flowpos_app/colors/colors.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
 
-class AddProduct extends StatefulWidget {
-  const AddProduct({super.key});
+class EditProduct extends StatefulWidget {
+  final String initialName;
+  final String initialPrice;
+  final String initialDescription;
+  final String initialCategory;
+  final XFile? initialImage;
+
+  const EditProduct({
+    super.key,
+    required this.initialName,
+    required this.initialPrice,
+    required this.initialDescription,
+    required this.initialCategory,
+    this.initialImage,
+  });
 
   @override
-  State<AddProduct> createState() => _AddProductState();
+  State<EditProduct> createState() => _EditProductState();
 }
 
-class _AddProductState extends State<AddProduct> {
+class _EditProductState extends State<EditProduct> {
   String? selectedCategory;
   final List<String> categories = ['Makanan', 'Minuman', 'Dessert'];
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController priceController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+  late TextEditingController nameController;
+  late TextEditingController priceController;
+  late TextEditingController descriptionController;
   XFile? imageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCategory = widget.initialCategory;
+    nameController = TextEditingController(text: widget.initialName);
+    priceController = TextEditingController(text: widget.initialPrice);
+    descriptionController =
+        TextEditingController(text: widget.initialDescription);
+    imageFile = widget.initialImage;
+  }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -26,55 +49,6 @@ class _AddProductState extends State<AddProduct> {
     setState(() {
       imageFile = pickedFile;
     });
-  }
-
-  Future<void> _addProduct() async {
-    if (nameController.text.isEmpty ||
-        priceController.text.isEmpty ||
-        descriptionController.text.isEmpty ||
-        selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Harap lengkapi semua field.')),
-      );
-      return;
-    }
-
-    try {
-      final uri = Uri.parse('http://10.0.2.2:3000/api/product');
-      final request = http.MultipartRequest('POST', uri);
-
-      request.fields['name'] = nameController.text;
-      request.fields['price'] = priceController.text;
-      request.fields['description'] = descriptionController.text;
-      request.fields['category'] = selectedCategory!;
-
-      if (imageFile != null) {
-        request.files.add(
-          await http.MultipartFile.fromPath('image', imageFile!.path),
-        );
-      }
-
-      final response = await request.send();
-
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Produk berhasil ditambahkan.')),
-        );
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ProductPage()),
-        );
-      } else {
-        final responseBody = await response.stream.bytesToString();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menambah produk: $responseBody')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Terjadi kesalahan: $e')),
-      );
-    }
   }
 
   @override
@@ -86,7 +60,7 @@ class _AddProductState extends State<AddProduct> {
         automaticallyImplyLeading: false,
         titleSpacing: 16,
         title: const Text(
-          'TAMBAH PRODUK',
+          'EDIT PRODUK',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 20,
@@ -98,10 +72,7 @@ class _AddProductState extends State<AddProduct> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ProductPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProductPage()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -284,32 +255,75 @@ class _AddProductState extends State<AddProduct> {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
-            Center(
-              child: ElevatedButton(
-                onPressed: _addProduct,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 12, horizontal: 155),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    border: Border.all(
+                        color: Colors.red,
+                        width: 1),
+                    borderRadius:
+                        BorderRadius.circular(8), 
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Hapus Produk'),
+                            content: const Text(
+                                'Apakah Anda yakin ingin menghapus produk ini?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Batal'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Hapus'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.white),
                   ),
                 ),
-                child: const Text(
-                  'Simpan',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                    color: Colors.white,
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 126),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Update',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),
       ),
-     bottomNavigationBar: const Padding(
+      bottomNavigationBar: const Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: BottomBar(),
       ),
