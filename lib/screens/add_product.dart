@@ -1,8 +1,9 @@
 import 'package:flowpos_app/screens/product.dart';
 import 'package:flowpos_app/widget/bottombar.dart';
 import 'package:flutter/material.dart';
-import 'package:flowpos_app/colors/colors.dart'; 
+import 'package:flowpos_app/colors/colors.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class AddProduct extends StatefulWidget {
   const AddProduct({super.key});
@@ -27,6 +28,55 @@ class _AddProductState extends State<AddProduct> {
     });
   }
 
+  Future<void> _addProduct() async {
+    if (nameController.text.isEmpty ||
+        priceController.text.isEmpty ||
+        descriptionController.text.isEmpty ||
+        selectedCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Harap lengkapi semua field.')),
+      );
+      return;
+    }
+
+    try {
+      final uri = Uri.parse('http://10.0.2.2:3000/api/product');
+      final request = http.MultipartRequest('POST', uri);
+
+      request.fields['name'] = nameController.text;
+      request.fields['price'] = priceController.text;
+      request.fields['description'] = descriptionController.text;
+      request.fields['category'] = selectedCategory!;
+
+      if (imageFile != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath('image', imageFile!.path),
+        );
+      }
+
+      final response = await request.send();
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Produk berhasil ditambahkan.')),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProductPage()),
+        );
+      } else {
+        final responseBody = await response.stream.bytesToString();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menambah produk: $responseBody')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +98,10 @@ class _AddProductState extends State<AddProduct> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProductPage()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProductPage()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -113,7 +166,8 @@ class _AddProductState extends State<AddProduct> {
                   color: Colors.black,
                 ),
                 items: categories.map((category) {
-                  return DropdownMenuItem<String>(value: category, child: Text(category));
+                  return DropdownMenuItem<String>(
+                      value: category, child: Text(category));
                 }).toList(),
                 onChanged: (value) {
                   setState(() {
@@ -136,10 +190,7 @@ class _AddProductState extends State<AddProduct> {
               controller: nameController,
               decoration: InputDecoration(
                 hintText: 'Masukkan Nama Produk',
-                hintStyle: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey
-                ),
+                hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -162,10 +213,7 @@ class _AddProductState extends State<AddProduct> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 hintText: 'Masukkan Harga Jual',
-                hintStyle: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey
-                ),
+                hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -188,10 +236,7 @@ class _AddProductState extends State<AddProduct> {
               maxLines: 4,
               decoration: InputDecoration(
                 hintText: 'Masukkan Deskripsi Produk',
-                hintStyle: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey
-                ),
+                hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -242,11 +287,11 @@ class _AddProductState extends State<AddProduct> {
             const SizedBox(height: 30),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                },
+                onPressed: _addProduct,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 155),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 12, horizontal: 155),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -264,7 +309,7 @@ class _AddProductState extends State<AddProduct> {
           ],
         ),
       ),
-      bottomNavigationBar: const Padding(
+     bottomNavigationBar: const Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: BottomBar(),
       ),

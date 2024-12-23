@@ -22,7 +22,7 @@ class _SettingPageState extends State<SettingPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
-          'tePOS',
+          'Posify',
           style: TextStyle(
               fontFamily: 'Poppins',
               color: AppColors.primary,
