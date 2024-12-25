@@ -32,7 +32,8 @@ class _AddProductState extends State<AddProduct> {
     if (nameController.text.isEmpty ||
         priceController.text.isEmpty ||
         descriptionController.text.isEmpty ||
-        selectedCategory == null) {
+        selectedCategory == null ||
+        imageFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Harap lengkapi semua field.')),
       );
@@ -40,19 +41,19 @@ class _AddProductState extends State<AddProduct> {
     }
 
     try {
-      final uri = Uri.parse('http://10.0.2.2:3000/api/product');
-      final request = http.MultipartRequest('POST', uri);
+      final uri = Uri.parse('https://posify-app.vercel.app/api/product');
+      final token =
+          'YOUR_JWT_TOKEN'; // Ganti dengan mekanisme autentikasi Anda.
 
+      final request = http.MultipartRequest('POST', uri);
+      request.headers['Authorization'] = 'Bearer $token';
       request.fields['name'] = nameController.text;
       request.fields['price'] = priceController.text;
       request.fields['description'] = descriptionController.text;
       request.fields['category'] = selectedCategory!;
-
-      if (imageFile != null) {
-        request.files.add(
-          await http.MultipartFile.fromPath('image', imageFile!.path),
-        );
-      }
+      request.files.add(
+        await http.MultipartFile.fromPath('image', imageFile!.path),
+      );
 
       final response = await request.send();
 
@@ -290,8 +291,8 @@ class _AddProductState extends State<AddProduct> {
                 onPressed: _addProduct,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 12, horizontal: 155),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 155),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -309,7 +310,7 @@ class _AddProductState extends State<AddProduct> {
           ],
         ),
       ),
-     bottomNavigationBar: const Padding(
+      bottomNavigationBar: const Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: BottomBar(),
       ),
