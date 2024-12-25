@@ -1,4 +1,3 @@
-import 'package:flowpos_app/colors/colors.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flowpos_app/screens/login.dart';

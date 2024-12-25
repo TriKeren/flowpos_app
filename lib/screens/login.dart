@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flowpos_app/models/popup_login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flowpos_app/screens/home.dart';
@@ -31,33 +32,45 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-  final response = await http.post(
-    Uri.parse('https://tepos-five.vercel.app/api/admin/login'),
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({
-      'username': username,
-      'password': password,
-    }),
-  );
+      final response = await http.post(
+        Uri.parse('https://posify-app.vercel.app/api/admin/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
 
-  print("Response status: ${response.statusCode}");
-  print("Response body: ${response.body}");
-  
-  final responseBody = json.decode(response.body);
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
 
-  if (response.statusCode == 200) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
-    );
-  } else {
-    _showError(responseBody['message'] ?? "Login gagal. Coba lagi.");
+      final responseBody = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        _showSuccess();
+      } else {
+        _showError(responseBody['message'] ?? "Login gagal. Coba lagi.");
+      }
+    } catch (e) {
+      print("Exception: $e");
+      _showError("Terjadi kesalahan, periksa koneksi internet.");
+    }
   }
-} catch (e) {
-  print("Exception: $e");
-  _showError("Terjadi kesalahan, periksa koneksi internet.");
-}
 
+  void _showSuccess() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SuccessDialog(
+          onConfirm: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          },
+        );
+      },
+    );
   }
 
   void _showError(String message) {
@@ -168,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 159, vertical: 15),
                   textStyle: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 child: const Text(
                   'Login',
@@ -199,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 140, vertical: 15),
                   textStyle: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 child: const Text(
                   'Registrasi',
