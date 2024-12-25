@@ -54,7 +54,7 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
       return;
     }
 
-    final url = Uri.parse('https://tepos-five.vercel.app/api/admin/register');
+    final url = Uri.parse('https://posify-app.vercel.app/api/admin/register');
 
     try {
       final response = await http.post(
@@ -71,15 +71,10 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
       print("Response body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Tambahkan 201 di sini
         final responseBody = jsonDecode(response.body);
 
         if (responseBody.containsKey('message')) {
           RegistrationPopup.showSuccess(context, responseBody['message']);
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
         } else {
           RegistrationPopup.showError(
               context, "Registrasi berhasil tetapi tanpa pesan.");
