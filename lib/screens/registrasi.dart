@@ -15,6 +15,7 @@ class RegistrasiPage extends StatefulWidget {
 class _RegistrasiPageState extends State<RegistrasiPage> {
   bool _obscureText = true;
   bool _confirmObscureText = true;
+  bool _isLoading = false;
 
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -30,6 +31,10 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
   }
 
   Future<void> registerUser(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
+
     String username = usernameController.text.trim();
     String email = emailController.text.trim();
     String password = passwordController.text;
@@ -40,17 +45,26 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
         password.isEmpty ||
         confirmPassword.isEmpty) {
       RegistrationPopup.showError(context, "Semua field harus diisi!");
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
 
     if (!isValidEmail(email)) {
       RegistrationPopup.showError(context, "Format email tidak valid!");
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
 
     if (password != confirmPassword) {
       RegistrationPopup.showError(
           context, "Password dan konfirmasi password tidak cocok!");
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
 
@@ -67,9 +81,6 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
         }),
       );
 
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseBody = jsonDecode(response.body);
 
@@ -80,13 +91,21 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
               context, "Registrasi berhasil tetapi tanpa pesan.");
         }
       } else {
-        RegistrationPopup.showError(
-            context, "Gagal mendaftar. Error dari server.");
+        final responseBody = jsonDecode(response.body);
+        if (responseBody.containsKey('error')) {
+          RegistrationPopup.showError(context, responseBody['error']);
+        } else {
+          RegistrationPopup.showError(
+              context, "Gagal mendaftar. Error dari server.");
+        }
       }
     } catch (e) {
-      print("Exception: $e");
       RegistrationPopup.showError(
           context, "Terjadi kesalahan, periksa koneksi internet.");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -110,7 +129,7 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -190,20 +209,29 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () => registerUser(context),
+                  onPressed: _isLoading ? null : () => registerUser(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 140, vertical: 15),
                   ),
-                  child: const Text(
-                    'Register',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          'Register',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Poppins',
+                            fontSize: 16,
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 16),
                 const Center(

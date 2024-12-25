@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscureText = true;
   bool _usernameText = false;
   bool _passwordHasText = false;
-
+  bool _isLoading = false; // Track loading state
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -25,11 +25,14 @@ class _LoginPageState extends State<LoginPage> {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
-    // Validasi input
     if (username.isEmpty || password.isEmpty) {
       _showError("Email dan Password harus diisi.");
       return;
     }
+
+    setState(() {
+      _isLoading = true; // Start loading
+    });
 
     try {
       final response = await http.post(
@@ -41,19 +44,18 @@ class _LoginPageState extends State<LoginPage> {
         }),
       );
 
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-
       final responseBody = json.decode(response.body);
-
       if (response.statusCode == 200) {
         _showSuccess();
       } else {
         _showError(responseBody['message'] ?? "Login gagal. Coba lagi.");
       }
     } catch (e) {
-      print("Exception: $e");
       _showError("Terjadi kesalahan, periksa koneksi internet.");
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading after process completes
+      });
     }
   }
 
@@ -95,6 +97,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -106,118 +110,154 @@ class _LoginPageState extends State<LoginPage> {
               fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       backgroundColor: Colors.white,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.05,
+          vertical: 50,
+        ),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                'Login',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 25,
-                  color: AppColors.secondary,
+              const AnimatedOpacity(
+                opacity: 1.0,
+                duration: Duration(seconds: 1),
+                child: Text(
+                  'Login',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 25,
+                    color: AppColors.secondary,
+                  ),
                 ),
               ),
-              const SizedBox(height: 40),
-              TextField(
-                controller: _usernameController,
-                onChanged: (text) {
-                  setState(() {
-                    _usernameText = text.isNotEmpty;
-                  });
-                },
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  labelStyle: TextStyle(
+              SizedBox(height: screenWidth * 0.1),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+                child: TextField(
+                  controller: _usernameController,
+                  onChanged: (text) {
+                    setState(() {
+                      _usernameText = text.isNotEmpty;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    labelStyle: TextStyle(
                       color: _usernameText
                           ? AppColors.primary
                           : AppColors.secondary.withOpacity(0.5),
-                      fontFamily: 'Poppins'),
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscureText,
-                onChanged: (text) {
-                  setState(() {
-                    _passwordHasText = text.isNotEmpty;
-                  });
-                },
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  labelStyle: TextStyle(
+              SizedBox(height: screenWidth * 0.04),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+                child: TextField(
+                  controller: _passwordController,
+                  obscureText: _obscureText,
+                  onChanged: (text) {
+                    setState(() {
+                      _passwordHasText = text.isNotEmpty;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    labelStyle: TextStyle(
                       color: _passwordHasText
                           ? AppColors.primary
                           : AppColors.secondary.withOpacity(0.5),
-                      fontFamily: 'Poppins'),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureText ? Icons.visibility : Icons.visibility_off,
+                      fontFamily: 'Poppins',
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: screenWidth * 0.1),
               ElevatedButton(
-                onPressed: _login,
+                onPressed: _isLoading ? null : _login, // Disable button during loading
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 159, vertical: 15),
-                  textStyle: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.all(0),
+                  minimumSize: Size(screenWidth * 0.9, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
                 ),
-                child: const Text(
-                  'Login',
-                  style: TextStyle(
-                      color: Colors.white, fontSize: 16, fontFamily: 'Poppins'),
-                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Login',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               const Text(
                 "Belum Punya Akun ??",
                 style: TextStyle(
-                    color: AppColors.secondary,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500),
+                  color: AppColors.secondary,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const RegistrasiPage()));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RegistrasiPage(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondary,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 140, vertical: 15),
-                  textStyle: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.all(0),
+                  minimumSize: Size(screenWidth * 0.9, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
                 ),
                 child: const Text(
                   'Registrasi',
                   style: TextStyle(
-                      color: Colors.white, fontSize: 16, fontFamily: 'Poppins'),
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
               ),
             ],
