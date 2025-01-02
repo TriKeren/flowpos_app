@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:flowpos_app/screens/home.dart';
 import 'package:flowpos_app/screens/registrasi.dart';
 import 'package:flowpos_app/colors/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'forgot_password.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,7 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscureText = true;
   bool _usernameText = false;
   bool _passwordHasText = false;
-  bool _isLoading = false; // Track loading state
+  bool _isLoading = false;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -31,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     setState(() {
-      _isLoading = true; // Start loading
+      _isLoading = true;
     });
 
     try {
@@ -46,7 +48,20 @@ class _LoginPageState extends State<LoginPage> {
 
       final responseBody = json.decode(response.body);
       if (response.statusCode == 200) {
-        _showSuccess();
+        // Memeriksa apakah token ada dalam response body
+        final token = responseBody['token'];
+        if (token != null && token.isNotEmpty) {
+          // Simpan token ke SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('user_token', token);
+
+          // Print the token for debugging purposes
+          print('Token: $token');
+
+          _showSuccess();
+        } else {
+          _showError("Token tidak tersedia dalam respon.");
+        }
       } else {
         _showError(responseBody['message'] ?? "Login gagal. Coba lagi.");
       }
@@ -54,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
       _showError("Terjadi kesalahan, periksa koneksi internet.");
     } finally {
       setState(() {
-        _isLoading = false; // Stop loading after process completes
+        _isLoading = false;
       });
     }
   }
@@ -195,9 +210,29 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ForgotPassword()),
+                    );
+                  },
+                  child: const Text(
+                    "Lupa sandi??",
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(height: screenWidth * 0.1),
               ElevatedButton(
-                onPressed: _isLoading ? null : _login, // Disable button during loading
+                onPressed: _isLoading ? null : _login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   padding: const EdgeInsets.all(0),

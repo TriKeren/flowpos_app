@@ -111,6 +111,7 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -211,9 +212,12 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : () => registerUser(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 140, vertical: 15),
+                    backgroundColor: AppColors.secondary,
+                    padding: const EdgeInsets.all(0),
+                    minimumSize: Size(screenWidth * 0.9, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
@@ -246,25 +250,40 @@ class _RegistrasiPageState extends State<RegistrasiPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
-                    );
-                  },
+                  onPressed: _isLoading
+                      ? null
+                      : () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LoginPage()),
+                          );
+                        },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 150, vertical: 15),
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.all(0),
+                    minimumSize: Size(screenWidth * 0.9, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
                   ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Poppins',
-                        fontSize: 16),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
                 ),
               ],
             ),

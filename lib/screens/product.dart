@@ -67,7 +67,7 @@ class _ProductPageState extends State<ProductPage> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const AddProduct()));
+                                  builder: (context) => AddProduct()));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,

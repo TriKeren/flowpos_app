@@ -11,139 +11,149 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Mendapatkan ukuran layar
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: [
           SafeArea(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 16.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.04, // 4% dari lebar layar
+                vertical: screenHeight * 0.02, // 2% dari tinggi layar
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Pemilik',
                     style: TextStyle(
                       color: AppColors.secondary,
                       fontFamily: 'Poppins',
-                      fontSize: 20,
+                      fontSize: screenWidth * 0.05, // Ukuran font dinamis
                     ),
                   ),
-                  const SizedBox(height: 5),
-                  const Text(
+                  SizedBox(height: screenHeight * 0.005), // Spasi dinamis
+                  Text(
                     'Kayeye Kece',
                     style: TextStyle(
                       color: AppColors.primary,
                       fontFamily: 'Poppins',
-                      fontSize: 20,
+                      fontSize: screenWidth * 0.05, // Ukuran font dinamis
                     ),
                   ),
-                  const SizedBox(height: 7),
-                  const Text(
+                  SizedBox(height: screenHeight * 0.007),
+                  Text(
                     'Kami siap menyiapkan kebutuhan anda',
                     style: TextStyle(
                       color: AppColors.secondary,
                       fontFamily: 'Poppins',
-                      fontSize: 14,
+                      fontSize: screenWidth * 0.035, // Ukuran font dinamis
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: screenHeight * 0.03),
                   Center(
                     child: Image.asset(
                       'assets/images/HomeVector.png',
-                      width: 220,
-                      height: 220,
+                      width: screenWidth * 0.5, // 50% dari lebar layar
+                      height: screenWidth * 0.5, // Menyesuaikan rasio
                       fit: BoxFit.cover,
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  SizedBox(height: screenHeight * 0.01),
                   Expanded(
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: screenHeight * 0.1, // Jarak dari BottomBar
                       ),
-                      itemCount: 4,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  switch (index) {
-                                    case 0:
-                                      return const HistoryPage();
-                                    case 1:
-                                      return const ProductPage();
-                                    case 2:
-                                      return KasirMenuPage();
-                                    case 3:
-                                      return const SettingPage();
-                                    default:
-                                      return const HomePage();
-                                  }
-                                },
-                              ),
-                            );
-                          },
-                          child: Card(
-                            color: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: const BorderSide(color: AppColors.border),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  index == 0
-                                      ? Icons.calendar_month_outlined
-                                      : index == 1
-                                          ? Icons.shopping_bag_outlined
-                                          : index == 2
-                                              ? Icons
-                                                  .production_quantity_limits_outlined
-                                              : Icons.settings,
-                                  size: 40,
-                                  color: AppColors.primary,
+                      child: GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: screenWidth * 0.03,
+                          mainAxisSpacing: screenHeight * 0.02,
+                        ),
+                        itemCount: 4,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    switch (index) {
+                                      case 0:
+                                        return const HistoryPage();
+                                      case 1:
+                                        return const ProductPage();
+                                      case 2:
+                                        return KasirMenuPage();
+                                      case 3:
+                                        return const SettingPage();
+                                      default:
+                                        return const HomePage();
+                                    }
+                                  },
                                 ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  index == 0
-                                      ? 'History'
-                                      : index == 1
-                                          ? 'Product'
-                                          : index == 2
-                                              ? 'Kasir'
-                                              : 'Setting',
-                                  style: const TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 16,
+                              );
+                            },
+                            child: Card(
+                              color: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: const BorderSide(color: AppColors.border),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    index == 0
+                                        ? Icons.calendar_month_outlined
+                                        : index == 1
+                                            ? Icons.shopping_bag_outlined
+                                            : index == 2
+                                                ? Icons
+                                                    .production_quantity_limits_outlined
+                                                : Icons.settings,
+                                    size: screenWidth * 0.1,
                                     color: AppColors.primary,
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                              ],
+                                  SizedBox(height: screenHeight * 0.01),
+                                  Text(
+                                    index == 0
+                                        ? 'History'
+                                        : index == 1
+                                            ? 'Product'
+                                            : index == 2
+                                                ? 'Kasir'
+                                                : 'Setting',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: screenWidth * 0.04,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  SizedBox(height: screenHeight * 0.01),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          const Positioned(
+          Positioned(
             bottom: 0,
-            left: 15,
-            right: 15,
-            child: BottomBar(),
+            left: screenWidth * 0.04,
+            right: screenWidth * 0.04,
+            child: const BottomBar(),
           ),
         ],
       ),
